@@ -1,0 +1,44 @@
+{
+    "configurations": [
+        {
+            "name": "!!! WARNING !!! AUTO-GENERATED FILE, PLEASE DO NOT MODIFY IT AND USE https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags"
+        },
+        {
+            "name": "Win32",
+            "includePath": [
+                "c:/Workspaces/IOT/ESP32_Drone/wifi-drone-esp32/include",
+                "c:/Workspaces/IOT/ESP32_Drone/wifi-drone-esp32/src",
+                "C:/Users/User/.platformio/packages/tool-unity",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "c:/Workspaces/IOT/ESP32_Drone/wifi-drone-esp32/include",
+                    "c:/Workspaces/IOT/ESP32_Drone/wifi-drone-esp32/src",
+                    "C:/Users/User/.platformio/packages/tool-unity",
+                    ""
+                ]
+            },
+            "defines": [
+                "ESP32",
+                "ESP_PLATFORM",
+                "F_CPU=240000000L",
+                "HAVE_CONFIG_H",
+                "MBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\"",
+                "PLATFORMIO=40301",
+                "ARDUINO_ESP32_DEV",
+                ""
+            ],
+            "intelliSenseMode": "clang-x64",
+            "cStandard": "c99",
+            "cppStandard": "c++11",
+            "compilerPath": "C:/Users/User/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-gcc.exe",
+            "compilerArgs": [
+                "-mlongcalls",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}
