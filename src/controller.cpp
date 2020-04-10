@@ -20,31 +20,32 @@
 #include "controller.h"
 
 Controller controller;
-
+Tank tank;
 
 void Controller::begin(void)
 {
-  ibus.begin(Serial2);
+  // ibus.begin(Serial2);
+  tank.begin();
   wifi.begin(onControlEvent);
 }
 
 void Controller::loop(void) {
   controller.currentMillis = millis();
   if (controller.currentMillis - controller.wifiRecievedMillis >= WIFI_FAIL_TIMEOUT_MS) {
-    ibus.disable();
+    tank.disable();
   } else {
-    ibus.enable();
+    tank.enable();
   }
   wifi.loop();
-  ibus.loop();
+  tank.loop();
 }
 
-void Controller::updateControlValues(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2]) {
+void Controller::updateControlValues(int list[Tank::DATA_CHANNELS_COUNT]) {
   controller.wifiRecievedMillis = millis();
-  ibus.setControlValuesList(list);
+  tank.setControlValuesList(list);
 }
 
-void Controller::onControlEvent(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2])
+void Controller::onControlEvent(int list[Tank::DATA_CHANNELS_COUNT])
 {
   updateControlValues(list);
 }

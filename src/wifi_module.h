@@ -16,19 +16,19 @@
  *
  */
 
-#ifndef Wifi_h
-#define Wifi_h
+#ifndef Wifi_module_h
+#define Wifi_module_h
 
 #include "Arduino.h"
-#include "secret.h"
-#include "ibus.h"
+#include "constraints/secret.h"
+#include "tank.h"
 #include "index_html.h"
 #include <WiFi.h>
 #include <WebServer.h>
 
-class Wifi {
+class Wifi_module {
   public:
-    void begin(void (*controlCallback)(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2]));
+    void begin(void (*controlCallback)(int list[Tank::DATA_CHANNELS_COUNT]));
     void loop();
 
   private:
@@ -38,11 +38,13 @@ class Wifi {
     WebServer * server;
 
     void beginWebServer(WebServer * server);
+    static void wifiNodeConfig();
+    static void aPConfig();
     static void onRoot();
     static void onControl();
-    void (*controlCallback)(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2]);
+    void (*controlCallback)(int list[Tank::DATA_CHANNELS_COUNT]);
 };
 
-extern Wifi wifi;
+extern Wifi_module wifi;
 
 #endif

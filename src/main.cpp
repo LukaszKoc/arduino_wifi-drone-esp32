@@ -1,13 +1,15 @@
 
 #include "Arduino.h"
-#include "controller.h"
+#include "controller.h" 
 
 void setup()
 {
-  controller.begin();
+	Serial.begin(115200);
+	controller.begin();
 }
 
 void loop()
 {
-  controller.loop();
+	controller.loop();
+	delay(5);
 }

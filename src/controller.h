@@ -20,8 +20,8 @@
 #define Controller_h
 
 #include "Arduino.h"
-#include "ibus.h"
-#include "wifi.h"
+#include "tank.h"
+#include "wifi_module.h"
 
 class Controller {
   public:
@@ -35,8 +35,8 @@ class Controller {
     unsigned long currentMillis = 0;
     unsigned long wifiRecievedMillis = 0;
 
-    static void onControlEvent(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2]);
-    static void updateControlValues(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2]);
+    static void onControlEvent(int list[Tank::DATA_CHANNELS_COUNT]);
+    static void updateControlValues(int list[Tank::DATA_CHANNELS_COUNT]);
 };
 
 extern Controller controller;
