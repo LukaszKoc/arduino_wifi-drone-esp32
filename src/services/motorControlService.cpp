@@ -8,7 +8,7 @@ void MotorControlService::setup() {
 	ledcAttachPin(input2,channel2);
 	ledcSetup(channel1, freq, resolution);
 	ledcSetup(channel2, freq, resolution);
-	neutral();
+	// stop();
 }
 
 void MotorControlService::setSpeed(int speed) {
@@ -27,10 +27,11 @@ void MotorControlService::neutral() {
 }
 
 void MotorControlService::drive(boolean isForward, int speed = 1024) {
+	stop();
 	if(isForward) {
 		// Serial.print("+");
-	    ledcWrite(channel1, speed);
 	    ledcWrite(channel2, 0);
+	    ledcWrite(channel1, speed);
 	} else {
 		// Serial.print("-");
 	    ledcWrite(channel1, 0);

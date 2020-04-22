@@ -1,7 +1,6 @@
 #ifndef SpeedControlService_h
 #define SpeedControlService_h 
 
-#include "Arduino.h"
 double milisecPerCentimeter = 0.0;
 
 double currentSpeedL = 0.0;
@@ -13,6 +12,7 @@ int pulsesChangedL = 0;
 double currentSpeedR = 0.0;
 long previousMillisR = 0.0;
 long milisNowR = 0.0;
+const long TIMEOUT = 500;
 int pulsesR, encoderAR, encoderBR;
 int pulsesChangedR = 0;
 
@@ -52,28 +52,29 @@ void SpeedControlService::setup( ) {
 }
 
 double SpeedControlService::getSpeedL() {
-  if (pulsesChangedL != 0) {
-    pulsesChangedL = 0;
-    return currentSpeedL;
+  if( currentSpeedL != 0.0 && (millis() - previousMillisL) > TIMEOUT) {
+    currentSpeedL = 0.0;
   }
-  return NULL;
+  return currentSpeedL;
 }
+
 double SpeedControlService::getSpeedR() {
-  if (pulsesChangedR != 0) {
-    pulsesChangedR = 0;
-    return currentSpeedR;
+  if( currentSpeedR != 0.0 && (millis() - previousMillisR) > TIMEOUT) {
+    currentSpeedR = 0.0;
   }
-  return NULL;
+  return currentSpeedR;
 }
 
 void readSpeedLeft() {
-  redSencores(encoderAL, encoderBL, pulsesL);
-  currentSpeedL = calculateSpeed(pulsesL, milisNowL, previousMillisL, pulsesChangedL);
+    redSencores(encoderAL, encoderBL, pulsesL);
+    double speed = calculateSpeed(pulsesL, milisNowL, previousMillisL, pulsesChangedL);
+    if (speed != NULL) currentSpeedL = speed;
 }
 
 void readSpeedRight() {
-  redSencores(encoderAR, encoderBR, pulsesR);
-  currentSpeedR = calculateSpeed(pulsesR, milisNowR, previousMillisR, pulsesChangedR);
+    redSencores(encoderAR, encoderBR, pulsesR);
+    double speed = calculateSpeed(pulsesR, milisNowR, previousMillisR, pulsesChangedR);
+    if (speed != NULL) currentSpeedR = speed;
 }
 
 void redSencores(int encoderA, int encoderB, int &pulses) {
@@ -100,21 +101,28 @@ double calculateSpeed(int &pulses, long &milisNow, long &previousMillis, int &sp
    if(pulses < 0) {
     currentSpeed = -1;
   }
+  // Serial.println(String("pulses: ") + pulses);
+
   if( pulses == stepsPerCentyMeter || pulses == -stepsPerCentyMeter) {
     speedChanged = 1;
     milisNow = millis();
     milisecPerCentimeter = (milisNow - previousMillis);
-    if(milisecPerCentimeter > 700) {
+    // Serial.println(String("milisecPerCentimeter: ") + milisecPerCentimeter);
+    if(milisecPerCentimeter > TIMEOUT) {
       previousMillis =  milisNow;
       pulses = 0;
-      return NULL;
+      return 0.0;
     }
     previousMillis = milisNow;
+
     currentSpeed = currentSpeed * (0.01 /(milisecPerCentimeter/1000));
+    // Serial.println(String("currentSpeed: ") + currentSpeed);
+
     speedChanged = 1;
     pulses = 0;
+    return currentSpeed;
   }
-  return currentSpeed;
+  return NULL;
 }
 
 #endif

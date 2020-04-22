@@ -30,9 +30,11 @@ class Controller {
 
     static void begin(void);
     static void loop(void);
+    static void speerLoop(void);
 
   private:
     unsigned long currentMillis = 0;
+    unsigned long logMillis = 0;
     unsigned long wifiRecievedMillis = 0;
 
     static void onControlEvent(int list[Tank::DATA_CHANNELS_COUNT]);

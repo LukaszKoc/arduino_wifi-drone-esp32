@@ -6,7 +6,7 @@
 
 class TankDriverService {
 	private:
-		MotorControlService motorLeft, motorRight;
+		MotorControlService motorLeft, motorRight; 
 		int speedL, speedR, bateryVoltagePin;
 		boolean singleJoystickMode;
 		float sampleSumValue = 0.0;
@@ -24,7 +24,7 @@ class TankDriverService {
 		TankDriverService(){};
 		TankDriverService(
 					MotorControlService _motorLeft, 
-					MotorControlService _motorRight, 
+					MotorControlService _motorRight,  
 					int _bateryVoltagePin, 
 					boolean _singleJoystickMode = true) {
 			motorLeft = _motorLeft;

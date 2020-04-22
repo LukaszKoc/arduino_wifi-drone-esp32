@@ -2,8 +2,8 @@
 #ifndef Tank_h
 #define Tank_h
 
-#include "services/MotorControlService.h"
-#include "services/TankDriverService.h"
+#include "services/motorControlService.h"
+#include "services/tankDriverService.h"
 #include "Arduino.h"
 
 class Tank {
@@ -13,6 +13,9 @@ class Tank {
     void loop();
     void enable();
     void disable();
+    // double readSpeedLeft();
+    // double readSpeedRight();
+
     static const unsigned int DATA_CHANNELS_COUNT = 6;
     static const unsigned int DEFAULT_CONTROL_VALUE = 0;
     void setControlValuesList(int list[DATA_CHANNELS_COUNT]);

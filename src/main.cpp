@@ -11,5 +11,4 @@ void setup()
 void loop()
 {
 	controller.loop();
-	delay(5);
 }
