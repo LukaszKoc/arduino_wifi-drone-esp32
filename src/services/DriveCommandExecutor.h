@@ -8,7 +8,7 @@
 
 class DriveCommandExecutor {
 	private:
-		int maxSpeed = 25;
+		static const int maxSpeed = TankDriverService::MAX_SPEED_INDICATOR / 4;
 		TankDriverService *tankDriver;
 		void right(int radius);
 		void left(int radius);

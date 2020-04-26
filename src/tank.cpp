@@ -27,13 +27,12 @@ void Tank::begin() {
 void Tank::loop() {
   tankDriverService.loop();
   this->currentMillis = millis();
-  if (this->isEnabled && (this->currentMillis >= this->previousMillis  + 5)) {
-    this->drive();
-    this->previousMillis = this->currentMillis;
-  }
+  // if (this->isEnabled && (this->currentMillis >= this->previousMillis  + 5)) {
+  //   this->drive();
+  //   this->previousMillis = this->currentMillis;
+  // }
   if(commands.size() > 0) {
     if(remoteDriver.actionListner(commands.get(0)->getType(), commands.get(0)->getValue())) {
-      Serial.println(String(commands.get(0)->getType())+ commands.get(0)->getValue());
       commands.remove(0);
     }
   }

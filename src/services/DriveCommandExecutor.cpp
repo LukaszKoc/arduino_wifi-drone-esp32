@@ -46,25 +46,23 @@ void DriveCommandExecutor::stop(){
 }
 
 void DriveCommandExecutor::right(int radius){
+	tankDriver->turn(radius, maxSpeed);
 	Serial.println(String("Rotate Right ") + radius);
 }
 
 void DriveCommandExecutor::left(int radius){
+	tankDriver->turn(-radius, maxSpeed);
 	Serial.println(String("Rotate Left ") + radius);
 }
 
 void DriveCommandExecutor::forward(int distance) {
 	Serial.println(String("Forward") + distance);
-	double startDistance = tankDriver->getDrivenDistance();
+	tankDriver->setStopRules(distance, distance);
 	tankDriver->driveStrait(maxSpeed);
-	while(tankDriver->getDrivenDistance() <= (startDistance + distance )){
-		delay(10);
-	}
 	Serial.println(String("distance: ") + tankDriver->getDrivenDistance());
-	stop();
 }
 
-void DriveCommandExecutor::backward(int distance){
+void DriveCommandExecutor::backward(int distance) {
 	Serial.println(String("Backward") + distance);
 }
 

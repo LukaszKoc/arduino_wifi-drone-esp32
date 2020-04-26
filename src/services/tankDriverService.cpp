@@ -16,8 +16,11 @@ void TankDriverService::setup() {
 }
 
 void TankDriverService::loop() {
-	if(stedyDriving && (dataUpdateTime  + dataUpdateFrequency) > millis()) {
-		radiusColtroll();
+	if((millis() - dataUpdateTime ) > dataUpdateFrequency) {
+		if(drivingStrait && (speedL != 0 && speedR != 0)) {
+			radiusColtroll();
+		}
+		drivingControl();
 		dataUpdateTime = millis();
 	}	
 }
@@ -27,21 +30,23 @@ float TankDriverService::getBateryVoltage() {
 }
 
 float TankDriverService::getDrivenDistance() {
-	Serial.println(String("Distance  : ") + speedController.getDistance());
-	Serial.println(String("Distance L: ") + speedController.getDistanceL());
-	Serial.println(String("Distance R: ") + speedController.getDistanceR());
-	return speedController.getDistance();
+	return speedController.getTotalDistance();
 }
 
 void TankDriverService::driveStrait(int speed) {
-	fixedSpeed = speed;
-	stedyDriving = true;
-	speed = mapSpeed(speed);
-	motorLeft.setSpeed(speed);
-	motorRight.setSpeed(speed);
+	speedController.clearDistance();
+	drivingStrait = true;
+	setSpeedL(speed);
+	setSpeedR(speed);
 }
 
-
+void TankDriverService::turn(int radius, int speed ) {
+	speedController.clearDistance();
+	drivingStrait = true;
+	setStopRules((double)radius, (double)radius);
+	setSpeedL(-speed);
+	setSpeedR(speed);
+}
 void TankDriverService::drive(int y, int x) {
 	int speedRight, speedLeft;
 	speedLeft = y;
@@ -69,48 +74,85 @@ void TankDriverService::drive(int y, int x) {
 		speedRight = -100;
 	}
 
-	speedLeft = mapSpeed(speedLeft);
-	speedRight = mapSpeed(speedRight);
-	motorLeft.setSpeed(speedLeft);
-	motorRight.setSpeed(speedRight);
+	setSpeedL(speedLeft);
+	setSpeedR(speedRight);
+}
+void TankDriverService::setStopRules(double distanceL, double distanceR){
+	stopRuleL = abs(speedController.getDistanceL() + distanceL);
+	stopRuleR = abs(speedController.getDistanceR() + distanceR);
+}
+void TankDriverService::drivingControl() {
+	stopSontroll();
+	motorLeft.setSpeed(mapSpeed(speedL));
+	motorRight.setSpeed(mapSpeed(speedR));
 }
 
+void TankDriverService::stopSontroll() {
+	if(speedL != 0 && abs(speedController.getDistanceL()) >= stopRuleL ) {
+		setSpeedL(0);
+		drivingStrait = false;
+		// Serial.println(String("stop rule activated L: "));
+		// Serial.println(String("disctanceL: ") + speedController.getDistanceL());
+		// Serial.println(String("disctanceR: ") + speedController.getDistanceR());
+	}
+	if(speedR != 0 && abs(speedController.getDistanceR()) >= stopRuleR ) {
+		setSpeedR(0);
+		drivingStrait = false;
+		// Serial.println(String("stop rule activated R: "));
+	}
+}
 
 void TankDriverService::radiusColtroll() {
 	double distanceL = speedController.getDistanceL();
 	double distanceR = speedController.getDistanceR();
-	double speedDiference = distanceL - distanceR;
-	if(abs(speedDiference) >= 0.5 ) {
-		double speedUpdate = fixedSpeed / 200 * 5 * speedDiference;
-		Serial.println(String("speed correction about") + speedUpdate);
-		if(speedDiference > 0) //lekko w lewo 
-			stedyDrive(fixedSpeed - speedUpdate, fixedSpeed + speedUpdate);
-		else  //lekko w prawe 
-			stedyDrive(fixedSpeed + speedUpdate, fixedSpeed - speedUpdate);
+	Serial.println(String("disctanceL: ") + speedController.getDistanceL());
+	Serial.println(String("disctanceR: ") + speedController.getDistanceR());
+
+	double distanceDifference = abs(distanceL) - abs(distanceR);
+	if(abs(distanceDifference) >= 0.1 ) {
+		Serial.println(String("distanceDifference:  ") + distanceDifference);
+		Serial.println(String("setSpeed L: ") + speedL);
+		Serial.println(String("setSpeed R: ") + speedR);
+		
+		if(abs(distanceL) > abs(distanceR)) { //lekko w prawo
+			setSpeedL(speedL + (speedL/abs(speedL)*1));
+			setSpeedR(speedR - (speedR/abs(speedR)*1));
+		} else {  //lekko w lewo 
+			setSpeedL(speedL - (speedL/abs(speedL)*1));
+			setSpeedR(speedR + (speedR/abs(speedR)*1));
+		}
 	}
 }
 
-void TankDriverService::stedyDrive(int speedLeft, int speedRight) {
-	stedyDriving = true;
-	speedLeft = mapSpeed(speedLeft);
-	speedRight = mapSpeed(speedRight);
-	motorLeft.setSpeed(speedLeft);
-	motorRight.setSpeed(speedRight);
+void TankDriverService::setSpeedL(int speed) {
+	if(speed > MAX_SPEED_INDICATOR ) speed = MAX_SPEED_INDICATOR;
+	if(speed < -MAX_SPEED_INDICATOR ) speed = -MAX_SPEED_INDICATOR;
+	if(abs(speed)< 80) speed = 0;
+	speedL = speed;
+}
+
+void TankDriverService::setSpeedR(int speed) {
+	if(speed > MAX_SPEED_INDICATOR ) speed = MAX_SPEED_INDICATOR;
+	if(speed < -MAX_SPEED_INDICATOR ) speed = -MAX_SPEED_INDICATOR;
+	if(abs(speed)< 80) speed = 0;
+	speedR = speed;
 }
 
 int TankDriverService::mapSpeed(int speed) {
 	if(speed < 0) {
-		return - map(-speed, 0, 100, 0, DC_PWM_RANGE);
+		return - map(-speed, 0, MAX_SPEED_INDICATOR, 0, DC_PWM_RANGE);
 	} else {
-		return  map(speed, 0, 100, 0, DC_PWM_RANGE);	
+		return  map(speed, 0, MAX_SPEED_INDICATOR, 0, DC_PWM_RANGE);	
 	}	
 }
 
 void TankDriverService::stop() {
+	drivingStrait = false;
 	motorLeft.stop();
 	motorRight.stop();
 }
 void TankDriverService::neutral() {
+	drivingStrait = false;
 	motorLeft.neutral();
 	motorRight.neutral();
 }
