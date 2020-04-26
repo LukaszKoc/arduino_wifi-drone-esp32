@@ -28,20 +28,26 @@
 
 class Wifi_module {
   public:
-    void begin(void (*controlCallback)(int list[Tank::DATA_CHANNELS_COUNT]));
+    void begin(
+      void (*controlCallback)(int list[Tank::DATA_CHANNELS_COUNT] )
+      );
     void loop();
 
   private:
     static const unsigned int WEBSERVER_PORT = 80;
-    const char * CONTROL_PATH = "/control";
+    const char * REMOTE_CONTROL_PATH = "/control";
+    const char * MASTER_CONTROL_FORWARD_PATH = "/command";
     const char * MDNS_DOMAIN_NAME = "quadcopter";
     WebServer * server;
 
+
+    CommandType parse (String command);
     void beginWebServer(WebServer * server);
     static void wifiNodeConfig();
     static void aPConfig();
     static void onRoot();
     static void onControl();
+    static void onMasterControl();
     void (*controlCallback)(int list[Tank::DATA_CHANNELS_COUNT]);
 };
 

@@ -9,3 +9,5 @@
 #define WIFI_PASSWORD "Phh4m2beyvGe"
 
 #endif
+
+//esphome accespass 01234567

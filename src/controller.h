@@ -22,6 +22,7 @@
 #include "Arduino.h"
 #include "tank.h"
 #include "wifi_module.h"
+#include "model/Command.h"
 
 class Controller {
   public:
@@ -30,13 +31,14 @@ class Controller {
 
     static void begin(void);
     static void loop(void);
-    static void speerLoop(void);
+    static void speedLoop(void);
 
   private:
     unsigned long currentMillis = 0;
     unsigned long logMillis = 0;
     unsigned long wifiRecievedMillis = 0;
 
+    static int onIncomingComandCallback(int list[2]);
     static void onControlEvent(int list[Tank::DATA_CHANNELS_COUNT]);
     static void updateControlValues(int list[Tank::DATA_CHANNELS_COUNT]);
 };

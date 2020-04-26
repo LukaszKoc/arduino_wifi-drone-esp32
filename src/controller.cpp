@@ -18,18 +18,17 @@
 
 #include "Arduino.h"
 #include "controller.h"
+#include <StackArray.h>
 #include "constraints/pinsNodeMCU.h"
-#include "services/speedControlService.h"
+#include "constraints/propperties.h"
 
 Controller controller;
 Tank tank;
-SpeedControlService speedController = SpeedControlService(MOTOR_L_SPEED_SENSOR_1, MOTOR_L_SPEED_SENSOR_2, MOTOR_R_SPEED_SENSOR_1, MOTOR_R_SPEED_SENSOR_2);
     
 void Controller::begin(void)
 {
   // ibus.begin(Serial2);
   tank.begin();
-  speedController.setup();
   wifi.begin(onControlEvent);
   delay(10);
 }
@@ -42,17 +41,7 @@ void Controller::loop(void) {
     tank.enable();
   }
   wifi.loop();
-  controller.speerLoop();
   tank.loop();
-}
-
-void Controller::speerLoop(void) {
-  if(controller.logMillis + 500 < controller.currentMillis) {
-    double speedR = speedController.getSpeedR();
-    double speedL = speedController.getSpeedL();
-    Serial.println(String("L: ") + speedL + " R: " + speedR);
-    controller.logMillis = controller.currentMillis;
-  }
 }
 
 void Controller::updateControlValues(int list[Tank::DATA_CHANNELS_COUNT]) {
@@ -60,7 +49,10 @@ void Controller::updateControlValues(int list[Tank::DATA_CHANNELS_COUNT]) {
   tank.setControlValuesList(list);
 }
 
-void Controller::onControlEvent(int list[Tank::DATA_CHANNELS_COUNT])
-{
-  updateControlValues(list);
+void Controller::onControlEvent(int list[Tank::DATA_CHANNELS_COUNT]) {
+  if(list[3] = NULL_VAL) {
+    tank.putCommand(Command(list[0], list[1]).getType(), list[1]);
+  } else {
+      updateControlValues(list);
+  }
 }

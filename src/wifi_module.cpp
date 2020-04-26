@@ -2,10 +2,14 @@
 #include "Arduino.h" 
 #include <wifi_module.h> 
 #include <WiFi.h>
+#include "./model/CommandType.h" 
+#include "constraints/propperties.h"
 
 Wifi_module wifi;
 
-void Wifi_module::begin(void (*controlCallback)(int list[Tank::DATA_CHANNELS_COUNT]))
+void Wifi_module::begin(
+  void (*controlCallback)(int list[Tank::DATA_CHANNELS_COUNT])
+  )
 {
   static WebServer server(WEBSERVER_PORT);
   this->server = &server;
@@ -45,12 +49,31 @@ void Wifi_module::loop()
 void Wifi_module::beginWebServer(WebServer * server)
 {
   server->on("/", onRoot);
-  server->on(CONTROL_PATH, onControl);
+  server->on(REMOTE_CONTROL_PATH, onControl);
+  server->on(MASTER_CONTROL_FORWARD_PATH, onMasterControl);
 }
 
 void Wifi_module::onRoot()
 {
   wifi.server->send(200, "text/html", INDEX_HTML);
+}
+
+void Wifi_module::onMasterControl() { 
+  
+  static int list[Tank::DATA_CHANNELS_COUNT];
+  
+  if(wifi.server->hasArg("value") && wifi.server->hasArg("command")) {
+    String incommingCommand = wifi.server->arg("command");
+
+    int incommingValue = wifi.server->arg("value").toInt();
+    list[0] = (int) wifi.parse(incommingCommand);
+    list[1] = incommingValue;
+    list[3] = NULL_VAL;
+    wifi.controlCallback(list);
+    wifi.server->send(200, "text/plain", "command queued at ");
+  } else {
+    wifi.server->send(400, "text/plain", "query params \"command\" and \"value\" are mandatory"); 
+  }
 }
 
 void Wifi_module::onControl()
@@ -62,12 +85,27 @@ void Wifi_module::onControl()
     int value = Tank::DEFAULT_CONTROL_VALUE;
     if(wifi.server->hasArg(argName)) {
       int incommingValue = wifi.server->arg(argName).toInt();
-      // if(incommingValue >= Tank::MIN_CONTROL_VALUE && incommingValue <= Tank::MIN_CONTROL_VALUE) {
         value = incommingValue;
-      // }
     }
     list[i] = value;
   }
   wifi.controlCallback(list);
   wifi.server->send(200, "text/plain", "");
+}
+
+CommandType Wifi_module::parse (String command)
+{
+    if(command.compareTo("forward") == 0) {
+        return FORWARD;
+    } if(command.compareTo("backward") == 0) {
+        return BACKWARD;
+    }    if(command.compareTo("left") == 0) {
+        return LEFT;
+    }    if(command.compareTo("right") == 0) {
+        return RIGHT;
+    }    if(command.compareTo("stop") == 0) {
+        return STOP;
+    }
+    return STOP;
+
 }

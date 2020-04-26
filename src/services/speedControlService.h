@@ -7,12 +7,14 @@ double currentSpeedL = 0.0;
 long previousMillisL = 0.0;
 long milisNowL = 0.0;
 int pulsesL, encoderAL, encoderBL;
+int totalPulsesL = 0;
 int pulsesChangedL = 0;
 
 double currentSpeedR = 0.0;
 long previousMillisR = 0.0;
 long milisNowR = 0.0;
 const long TIMEOUT = 500;
+int totalPulsesR = 0;
 int pulsesR, encoderAR, encoderBR;
 int pulsesChangedR = 0;
 
@@ -23,7 +25,7 @@ void IRAM_ATTR readSpeedRight();
  
 
 const int stepsPerCentyMeter = 12;
-void  redSencores(int encoderA, int encoderB, int &pulses);
+void  readSencores(int encoderA, int encoderB, int &pulses, int &totalPulses);
 double  calculateSpeed(int &pulses, long &milisNow, long &previousMillis, int &pulsesChanged);
 
 class SpeedControlService {
@@ -38,6 +40,9 @@ class SpeedControlService {
       encoderAR = sencor1R_arg; 
       encoderBR = sencor2R_arg;
     }
+    double getDistance();  
+    double getDistanceL();  
+    double getDistanceR();  
     double getSpeedL();  
     double getSpeedR();    
 }; 
@@ -57,6 +62,16 @@ double SpeedControlService::getSpeedL() {
   }
   return currentSpeedL;
 }
+double SpeedControlService::getDistance() {
+  return ((totalPulsesR + totalPulsesL)/2) / stepsPerCentyMeter;
+}
+
+double SpeedControlService::getDistanceL() {
+  return (double)totalPulsesL / (double)stepsPerCentyMeter;
+}
+double SpeedControlService::getDistanceR() {
+  return (double)totalPulsesR / (double)stepsPerCentyMeter;
+}
 
 double SpeedControlService::getSpeedR() {
   if( currentSpeedR != 0.0 && (millis() - previousMillisR) > TIMEOUT) {
@@ -66,31 +81,35 @@ double SpeedControlService::getSpeedR() {
 }
 
 void readSpeedLeft() {
-    redSencores(encoderAL, encoderBL, pulsesL);
+    readSencores(encoderAL, encoderBL, pulsesL, totalPulsesL);
     double speed = calculateSpeed(pulsesL, milisNowL, previousMillisL, pulsesChangedL);
-    if (speed != NULL) currentSpeedL = speed;
+    if (speed != -1000.0) currentSpeedL = speed;
 }
 
 void readSpeedRight() {
-    redSencores(encoderAR, encoderBR, pulsesR);
+    readSencores(encoderAR, encoderBR, pulsesR, totalPulsesR);
     double speed = calculateSpeed(pulsesR, milisNowR, previousMillisR, pulsesChangedR);
-    if (speed != NULL) currentSpeedR = speed;
+    if (speed != -1000.0) currentSpeedR = speed;
 }
 
-void redSencores(int encoderA, int encoderB, int &pulses) {
+void readSencores(int encoderA, int encoderB, int &pulses, int &totalPulses) {
   if ( digitalRead(encoderB) == 0 ) {
     if ( digitalRead(encoderA) == 0 ) {
       // A fell, B is low
       pulses--; // Moving forward
+      totalPulses--;
     } else {
       // A rose, B is high
+      totalPulses++;
       pulses++; // Moving reverse
     }
   } else {
     if ( digitalRead(encoderA) == 0 ) {
+      totalPulses++;
       pulses++; // Moving reverse
     } else {
       // A rose, B is low
+      totalPulses--;
       pulses--; // Moving forward
     }
   }
@@ -122,7 +141,7 @@ double calculateSpeed(int &pulses, long &milisNow, long &previousMillis, int &sp
     pulses = 0;
     return currentSpeed;
   }
-  return NULL;
+  return -1000.0;
 }
 
 #endif

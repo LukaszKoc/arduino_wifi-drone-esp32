@@ -1,32 +1,44 @@
 
 #include "Arduino.h"
+#include "constraints/pinsNodeMCU.h"
+#include "services/speedControlService.h"
 #include "tankDriverService.h"
 
+
+SpeedControlService speedController = SpeedControlService(MOTOR_L_SPEED_SENSOR_1, MOTOR_L_SPEED_SENSOR_2, MOTOR_R_SPEED_SENSOR_1, MOTOR_R_SPEED_SENSOR_2);
+
 void TankDriverService::setup() {
-	pinMode(bateryVoltagePin, INPUT);
-	dataUpdateTime = millis();
+	// pinMode(bateryVoltagePin, INPUT);
+	speedController.setup();
 	motorLeft.setup();
 	motorRight.setup();
+	dataUpdateTime = millis();
 }
 
-void TankDriverService::loopAction() {
-
-  if(millis() > dataUpdateTime + 5) {
-    dataUpdateTime = millis();
-		if(samplesToGet  == 0) {
-		    bateryVoltage =  (sampleSumValue / SAMPLES_COUNT) * 
-		    		(REFERENCE_VCC / 4095.0) * CALIBRATION_INDICATOR;
-			samplesToGet = SAMPLES_COUNT;
-			sampleSumValue = 0;
-		} else {
-			sampleSumValue += analogRead(bateryVoltagePin);
-			samplesToGet --;
-		}
-	}
+void TankDriverService::loop() {
+	if(stedyDriving && (dataUpdateTime  + dataUpdateFrequency) > millis()) {
+		radiusColtroll();
+		dataUpdateTime = millis();
+	}	
 }
  
 float TankDriverService::getBateryVoltage() {
 	return bateryVoltage;
+}
+
+float TankDriverService::getDrivenDistance() {
+	Serial.println(String("Distance  : ") + speedController.getDistance());
+	Serial.println(String("Distance L: ") + speedController.getDistanceL());
+	Serial.println(String("Distance R: ") + speedController.getDistanceR());
+	return speedController.getDistance();
+}
+
+void TankDriverService::driveStrait(int speed) {
+	fixedSpeed = speed;
+	stedyDriving = true;
+	speed = mapSpeed(speed);
+	motorLeft.setSpeed(speed);
+	motorRight.setSpeed(speed);
 }
 
 
@@ -57,6 +69,29 @@ void TankDriverService::drive(int y, int x) {
 		speedRight = -100;
 	}
 
+	speedLeft = mapSpeed(speedLeft);
+	speedRight = mapSpeed(speedRight);
+	motorLeft.setSpeed(speedLeft);
+	motorRight.setSpeed(speedRight);
+}
+
+
+void TankDriverService::radiusColtroll() {
+	double distanceL = speedController.getDistanceL();
+	double distanceR = speedController.getDistanceR();
+	double speedDiference = distanceL - distanceR;
+	if(abs(speedDiference) >= 0.5 ) {
+		double speedUpdate = fixedSpeed / 200 * 5 * speedDiference;
+		Serial.println(String("speed correction about") + speedUpdate);
+		if(speedDiference > 0) //lekko w lewo 
+			stedyDrive(fixedSpeed - speedUpdate, fixedSpeed + speedUpdate);
+		else  //lekko w prawe 
+			stedyDrive(fixedSpeed + speedUpdate, fixedSpeed - speedUpdate);
+	}
+}
+
+void TankDriverService::stedyDrive(int speedLeft, int speedRight) {
+	stedyDriving = true;
 	speedLeft = mapSpeed(speedLeft);
 	speedRight = mapSpeed(speedRight);
 	motorLeft.setSpeed(speedLeft);
