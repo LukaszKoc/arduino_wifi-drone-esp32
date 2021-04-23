@@ -7,9 +7,6 @@ void DriveCommandExecutor::begin() {
 }
 
 boolean DriveCommandExecutor::actionListner(CommandType type, int value) {
- 
-	Serial.println(String("comand type: ") + type);
-	Serial.println();
 	switch(type) {
 		case STOP: { 
 	     	stop();
@@ -36,8 +33,9 @@ boolean DriveCommandExecutor::actionListner(CommandType type, int value) {
 			 return true; 
 			}
 		break;       
-	  }
-	  return false;
+	}
+	Serial.println(String("Invalid command: ") + type);
+	return false;
 }
 
 void DriveCommandExecutor::stop(){

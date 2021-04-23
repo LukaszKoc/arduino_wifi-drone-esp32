@@ -1,5 +1,4 @@
- 
-#include "Arduino.h" 
+ #include "Arduino.h" 
 #include <wifi_module.h> 
 #include <WiFi.h>
 #include "./model/CommandType.h" 

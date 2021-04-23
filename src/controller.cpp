@@ -50,9 +50,9 @@ void Controller::updateControlValues(int list[Tank::DATA_CHANNELS_COUNT]) {
 }
 
 void Controller::onControlEvent(int list[Tank::DATA_CHANNELS_COUNT]) {
-  if(list[3] = NULL_VAL) {
-    tank.putCommand(Command(list[0], list[1]).getType(), list[1]);
-  } else {
+  // if(list[3] = NULL_VAL) {
+  //   tank.putCommand(Command(list[0], list[1]).getType(), list[1]);
+  // } else {
       updateControlValues(list);
-  }
+  // }
 }

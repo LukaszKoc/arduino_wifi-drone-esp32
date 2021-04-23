@@ -17,8 +17,8 @@ class Tank {
     void loop();
     void enable();
     void disable();
-    // double readSpeedLeft();
-    // double readSpeedRight();
+   // double readSpeedLeft();
+   // double readSpeedRight();
 
     static const unsigned int DATA_CHANNELS_COUNT = 6;
     static const unsigned int DEFAULT_CONTROL_VALUE = 0;

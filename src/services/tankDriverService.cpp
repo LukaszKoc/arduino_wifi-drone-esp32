@@ -1,4 +1,3 @@
-
 #include "Arduino.h"
 #include "constraints/pinsNodeMCU.h"
 #include "services/speedControlService.h"
@@ -33,6 +32,10 @@ float TankDriverService::getDrivenDistance() {
 	return speedController.getTotalDistance();
 }
 
+float TankDriverService::getSpeed() {
+	return (speedController.getSpeedR() + speedController.getSpeedL())/2;
+}
+
 void TankDriverService::driveStrait(int speed) {
 	speedController.clearDistance();
 	drivingStrait = true;
@@ -49,31 +52,34 @@ void TankDriverService::turn(int radius, int speed ) {
 }
 void TankDriverService::drive(int y, int x) {
 	int speedRight, speedLeft;
+	y = map(y, -500, 500, -100, 100);
+	x = map(x, -500, 500, -100, 100);
+	
 	speedLeft = y;
 	speedRight = y;
 	
-	if(x > 30) {
-		speedLeft = -25;
-		speedRight = 25;
+	if(x > 40) {
+		speedLeft = -10;
+		speedRight = 10;
 	} else if(x < -30) {
-		speedLeft = 25;
-		speedRight = -25;
+		speedLeft = 10;
+		speedRight = -10;
 	}
 	if(x > 50) {
-		speedLeft = -50;
-		speedRight = 50;
+		speedLeft = -20;
+		speedRight = 20;
 	} else if(x < -50) {
-		speedLeft = 50;
-		speedRight = -50;
+		speedLeft = 20;
+		speedRight = -20;
 	}
 	if(x > 70) {
-		speedLeft = -100;
-		speedRight = 100;
+		speedLeft = -30;
+		speedRight = 30;
 	} else if(x < -70) {
-		speedLeft = 100;
-		speedRight = -100;
+		speedLeft = 30;
+		speedRight = -30;
 	}
-
+  
 	setSpeedL(speedLeft);
 	setSpeedR(speedRight);
 }
@@ -88,14 +94,15 @@ void TankDriverService::drivingControl() {
 }
 
 void TankDriverService::stopSontroll() {
-	if(speedL != 0 && abs(speedController.getDistanceL()) >= stopRuleL ) {
+	if(speedL != 0 && (
+		speedController.getDistanceL() !=0 && 
+		abs(speedController.getDistanceL()) >= stopRuleL )) {
 		setSpeedL(0);
 		drivingStrait = false;
-		// Serial.println(String("stop rule activated L: "));
-		// Serial.println(String("disctanceL: ") + speedController.getDistanceL());
-		// Serial.println(String("disctanceR: ") + speedController.getDistanceR());
 	}
-	if(speedR != 0 && abs(speedController.getDistanceR()) >= stopRuleR ) {
+	if(speedR != 0 && (
+		speedController.getDistanceL() !=0 && 
+		abs(speedController.getDistanceR()) >= stopRuleR )) {
 		setSpeedR(0);
 		drivingStrait = false;
 		// Serial.println(String("stop rule activated R: "));
@@ -104,15 +111,10 @@ void TankDriverService::stopSontroll() {
 
 void TankDriverService::radiusColtroll() {
 	double distanceL = speedController.getDistanceL();
-	double distanceR = speedController.getDistanceR();
-	Serial.println(String("disctanceL: ") + speedController.getDistanceL());
-	Serial.println(String("disctanceR: ") + speedController.getDistanceR());
+	double distanceR = speedController.getDistanceR(); 
 
 	double distanceDifference = abs(distanceL) - abs(distanceR);
-	if(abs(distanceDifference) >= 0.1 ) {
-		Serial.println(String("distanceDifference:  ") + distanceDifference);
-		Serial.println(String("setSpeed L: ") + speedL);
-		Serial.println(String("setSpeed R: ") + speedR);
+	if(abs(distanceDifference) >= 0.1 ) { 
 		
 		if(abs(distanceL) > abs(distanceR)) { //lekko w prawo
 			setSpeedL(speedL + (speedL/abs(speedL)*1));
@@ -127,14 +129,14 @@ void TankDriverService::radiusColtroll() {
 void TankDriverService::setSpeedL(int speed) {
 	if(speed > MAX_SPEED_INDICATOR ) speed = MAX_SPEED_INDICATOR;
 	if(speed < -MAX_SPEED_INDICATOR ) speed = -MAX_SPEED_INDICATOR;
-	if(abs(speed)< 80) speed = 0;
+	if(abs(speed)< 5) speed = 0;
 	speedL = speed;
 }
 
 void TankDriverService::setSpeedR(int speed) {
 	if(speed > MAX_SPEED_INDICATOR ) speed = MAX_SPEED_INDICATOR;
 	if(speed < -MAX_SPEED_INDICATOR ) speed = -MAX_SPEED_INDICATOR;
-	if(abs(speed)< 80) speed = 0;
+	if(abs(speed)< 5) speed = 0;
 	speedR = speed;
 }
 
@@ -156,4 +158,5 @@ void TankDriverService::neutral() {
 	motorLeft.neutral();
 	motorRight.neutral();
 }
+  
   

@@ -9,7 +9,7 @@
 class TankDriverService {
 	private:
 		MotorControlService motorLeft, motorRight; 
-		// SpeedControlService speedController;
+	   // SpeedControlService speedController;
 		int bateryVoltagePin;
 		boolean singleJoystickMode;
 		float sampleSumValue = 0.0;
@@ -31,9 +31,10 @@ class TankDriverService {
 		void setSpeedL(int speed);
 		void setSpeedR(int speed);
 	public:
-		int static const MAX_SPEED_INDICATOR = 1000;
+		int static const MAX_SPEED_INDICATOR = 80; // from 0 to 100
 		void setStopRules(double distanceL, double distanceR);
 		float getDrivenDistance();
+		float getSpeed();
 		float getBateryVoltage();
 		void drive(int x, int y);
 		void drive(int speed);

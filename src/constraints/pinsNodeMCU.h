@@ -1,12 +1,12 @@
-#define ACCESS_POINT_PINT 17 //SD3
+	#define ACCESS_POINT_PINT 2
 
 // Motors
 //Left
 	#define MOTOR_L_TURN_1_PIN 23
 	#define MOTOR_L_TURN_2_PIN 22
 	//Right 
-	#define MOTOR_R_TURN_1_PIN 21
-	#define MOTOR_R_TURN_2_PIN 19
+	#define MOTOR_R_TURN_1_PIN 19
+	#define MOTOR_R_TURN_2_PIN 18
 
 //Speed controll
 	//Right

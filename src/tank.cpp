@@ -27,32 +27,24 @@ void Tank::begin() {
 void Tank::loop() {
   tankDriverService.loop();
   this->currentMillis = millis();
-  // if (this->isEnabled && (this->currentMillis >= this->previousMillis  + 5)) {
-  //   this->drive();
-  //   this->previousMillis = this->currentMillis;
-  // }
-  if(commands.size() > 0) {
-    if(remoteDriver.actionListner(commands.get(0)->getType(), commands.get(0)->getValue())) {
-      commands.remove(0);
+  if(this->currentMillis >= this->previousMillis + 5) {
+
+    if(commands.size() > 0) {
+      if(remoteDriver.actionListner(commands.get(0)->getType(), commands.get(0)->getValue())) {
+        commands.remove(0);
+      }
+    } else if (this->isEnabled ) {
+      this->drive();
+      
+      this->previousMillis = this->currentMillis;
     }
+    
   }
 }
   
 void Tank::drive() {
-  tankDriverService.drive(controlValuesList[1]/5, controlValuesList[0]/5);
+  tankDriverService.drive(controlValuesList[1], controlValuesList[0]);
 }
-
-// double Tank::readSpeedRight() {
-//   double speed = speedController.getSpeedR();
-//   Serial.println(speed);
-//   return speed;
-// }
-
-// double Tank::readSpeedLeft() {
-//   double speed = speedController.getSpeedL();
-//   Serial.println(speed);
-//   return speed;
-// }
 
 void Tank::enable() {
   this->isEnabled = true;
@@ -64,7 +56,7 @@ void Tank::disable() {
 
 int Tank::putCommand(CommandType command, int value){
   
-    Serial.println(String(command) + " " + value);
+    // Serial.println(String(command) + " " + value);
   commands.add(new Command(command, value));
   return commands.size();
 }

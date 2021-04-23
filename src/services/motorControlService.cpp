@@ -26,7 +26,7 @@ void MotorControlService::neutral() {
 	drive(true, 0);
 }
 
-void MotorControlService::drive(boolean isForward, int speed = 1024) {
+void MotorControlService::drive(boolean isForward, int speed = 0) {
 	stop();
 	if(isForward) {
 		// Serial.print("+");
