@@ -12,7 +12,8 @@ void Wifi_module::begin(
 {
   static WebServer server(WEBSERVER_PORT);
   this->server = &server;
-  wifiNodeConfig();
+  // wifiNodeConfig();
+  aPConfig();
   this->beginWebServer(this->server);
   this->server->begin();
   this->controlCallback = controlCallback;
